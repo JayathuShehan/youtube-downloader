@@ -25,6 +25,7 @@ ytd -ui     →  open the web UI in your browser (http://localhost:8765)
 - [Project Structure](#project-structure)
 - [Building from Source](#building-from-source)
 - [Troubleshooting](#troubleshooting)
+- [Contributing and Security](#contributing-and-security)
 - [Disclaimer](#disclaimer)
 - [License](#license)
 
@@ -412,6 +413,16 @@ powershell -ExecutionPolicy Bypass -File build.ps1
 | Windows SmartScreen warning | The exe isn't code-signed. Click **More info → Run anyway**, or build it yourself. |
 | `setup.bat` says winget is missing | Install **App Installer** from the Microsoft Store, or install Python, ffmpeg and Deno yourself. |
 | Setup installed something but can't find it | Close the window and run `setup.bat` again, so it picks up the updated PATH. |
+
+---
+
+## Contributing and Security
+
+- **Bugs and ideas:** open an issue with the **Bug report** or **Feature request** form.
+- **Pull requests:** read [CONTRIBUTING.md](CONTRIBUTING.md). `main` is protected, so every change goes through a reviewed pull request.
+- **Security problems:** report them privately as described in [SECURITY.md](SECURITY.md), not in a public issue.
+- **Behaviour:** everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
+- **Downloads:** get YTDownloader only from this repository's [Releases](https://github.com/JayathuShehan/youtube-downloader/releases) page.
 
 ---
 
