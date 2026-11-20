@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YTDownloader</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%23e5484d'/><path d='M12 6v8m0 0l-3.5-3.5M12 14l3.5-3.5M7 18h10' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 5v9m0 0l-3.5-3.5M12 14l3.5-3.5M6 19h12"/></svg>
+      </div>
+      <div>
+        <h1>YTDownloader</h1>
+        <p class="sub">Multi-connection downloads with pause and resume</p>
+      </div>
+      <span class="version" id="version"></span>
+    </header>
+
+    <section class="card">
+      <label class="lbl" for="url">Video link</label>
+      <div class="row">
+        <input id="url" type="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false">
+        <button id="fetch" class="btn">Fetch</button>
+      </div>
+      <p class="msg" id="msg" role="status"></p>
+
+      <div class="preview" id="preview" hidden>
+        <img id="thumb" alt="">
+        <div class="meta">
+          <div class="title" id="title"></div>
+          <div class="muted" id="uploader"></div>
+          <div class="muted" id="duration"></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <span class="lbl">Type</span>
+          <div class="seg" role="radiogroup" aria-label="Type">
+            <button class="seg-btn active" data-type="video" role="radio" aria-checked="true">Video</button>
+            <button class="seg-btn" data-type="audio" role="radio" aria-checked="false">Audio</button>
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="quality">Quality</label>
+          <select id="quality" disabled><option>Fetch a link first</option></select>
+        </div>
+      </div>
+
+      <label class="lbl" for="folder">Save to</label>
+      <div class="row">
+        <input id="folder" type="text" spellcheck="false">
+        <button id="browse" class="btn ghost">Browse…</button>
+      </div>
+
+      <div class="row actions">
+        <label class="conn">Connections
+          <select id="connections">
+            <option>1</option><option>4</option><option selected>8</option><option>16</option><option>24</option><option>32</option>
+          </select>
+        </label>
+        <div class="spacer"></div>
+        <button id="start" class="btn primary" disabled>Start</button>
+        <button id="pause" class="btn" disabled>Pause</button>
+        <button id="resume" class="btn" disabled>Resume</button>
+      </div>
+    </section>
+
+    <section class="card" id="progressCard" hidden>
+      <div class="ptop">
+        <div class="ptitle" id="pTitle"></div>
+        <span class="badge" id="pState"></span>
+      </div>
+      <div class="bar"><div class="fill" id="pFill"></div></div>
+      <div class="pline">
+        <span id="pPercent">0%</span>
+        <span class="muted" id="pStage"></span>
+      </div>
+      <dl class="stats">
+        <div><dt>Downloaded</dt><dd id="sDone">–</dd></div>
+        <div><dt>Total size</dt><dd id="sTotal">–</dd></div>
+        <div><dt>Speed</dt><dd id="sSpeed">–</dd></div>
+        <div><dt>Time left</dt><dd id="sEta">–</dd></div>
+        <div><dt>Connections</dt><dd id="sConn">–</dd></div>
+        <div><dt>Quality</dt><dd id="sQuality">–</dd></div>
+      </dl>
+      <div id="streams"></div>
+      <p class="err" id="pError" hidden></p>
+      <div class="row" id="doneRow" hidden>
+        <span class="muted path" id="pOutput"></span>
+        <div class="spacer"></div>
+        <button id="openFolder" class="btn ghost">Show in folder</button>
+      </div>
+    </section>
+
+    <section class="card" id="historyCard" hidden>
+      <h2>Downloads this session</h2>
+      <ul class="history" id="history"></ul>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
