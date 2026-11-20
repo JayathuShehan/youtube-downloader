@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# PyInstaller output
+build/
+dist/
+*.spec
+
+# Unfinished downloads
+*.part
+*.part.ytd.json
+*.ytd.json.tmp
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
