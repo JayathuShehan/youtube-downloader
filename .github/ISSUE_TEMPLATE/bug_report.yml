@@ -1,0 +1,76 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please make sure you use the [latest release](https://github.com/JayathuShehan/youtube-downloader/releases) first.
+        **Security problems:** don't post them here. See [SECURITY.md](https://github.com/JayathuShehan/youtube-downloader/blob/main/SECURITY.md).
+  - type: input
+    id: version
+    attributes:
+      label: YTDownloader version
+      description: Output of `ytd -v`
+      placeholder: YTDownloader 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: build
+    attributes:
+      label: Which file do you use?
+      options:
+        - x64 zip
+        - x64 exe
+        - x86 zip
+        - x86 exe
+        - Built from source (setup.bat / build.ps1)
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 23H2, 64-bit
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Where does it happen?
+      options:
+        - Command line (ytd -url)
+        - Web UI (ytd -ui)
+        - setup.bat / build
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The command you ran, the video link, and the type/quality you picked.
+      placeholder: |
+        1. ytd -url https://www.youtube.com/watch?v=...
+        2. Type: Video, Quality: 1080p60
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Error message / console output
+      description: Copy the full text from the console. It's formatted automatically.
+      render: text
+  - type: textarea
+    id: tools
+    attributes:
+      label: Tool versions
+      description: Output of `ffmpeg -version` (first line) and `deno --version` (or `node --version`).
+      render: text
