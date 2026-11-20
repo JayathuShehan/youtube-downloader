@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YTDownloader Documentation</title>
+<meta name="description" content="How to install and use YTDownloader, a fast multi-connection YouTube downloader for Windows.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%23e5484d'/><path d='M12 6v8m0 0l-3.5-3.5M12 14l3.5-3.5M7 18h10' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #17191e; --muted: #626a77; --line: #e2e5ea;
+    --accent: #e5484d; --link: #2563eb; --code-bg: #f0f2f5; --pre-bg: #1b1e24; --pre-text: #e6e8eb;
+    --ok: #2f9e5b; --warn-bg: #fff6e0; --warn-line: #f0c36a; --tip-bg: #eaf2ff; --tip-line: #9cc0fb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101216; --panel: #171a1f; --text: #e7e9ed; --muted: #9aa1ad; --line: #2a2e36;
+      --link: #7aa7ff; --code-bg: #232730; --pre-bg: #0c0e11; --pre-text: #e6e8eb;
+      --warn-bg: #2b2414; --warn-line: #7a5c1c; --tip-bg: #14203a; --tip-line: #2f4f86;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101216; --panel: #171a1f; --text: #e7e9ed; --muted: #9aa1ad; --line: #2a2e36;
+    --link: #7aa7ff; --code-bg: #232730; --pre-bg: #0c0e11; --pre-text: #e6e8eb;
+    --warn-bg: #2b2414; --warn-line: #7a5c1c; --tip-bg: #14203a; --tip-line: #2f4f86;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; }
+  nav.side { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 24px 16px; border-right: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .logo { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; flex: none; }
+  .logo svg { width: 20px; height: 20px; stroke: #fff; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .brand b { font-size: 16px; }
+  .brand span { display: block; color: var(--muted); font-size: 12px; }
+  nav.side ul { list-style: none; margin: 0; padding: 0; }
+  nav.side li a { display: block; padding: 5px 10px; border-radius: 6px; color: var(--muted); font-size: 14px; }
+  nav.side li a:hover, nav.side li a.active { background: var(--code-bg); color: var(--text); text-decoration: none; }
+  .theme { margin-top: 18px; font: inherit; font-size: 13px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  main { padding: 32px 40px 80px; min-width: 0; }
+  h1 { font-size: 34px; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 23px; margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+  h3 { font-size: 17px; margin: 26px 0 8px; }
+  .lead { font-size: 17px; color: var(--muted); margin: 0 0 20px; max-width: 70ch; }
+  p, li { max-width: 78ch; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 13.5px; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--pre-bg); color: var(--pre-text); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 13.5px; line-height: 1.5; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child code { white-space: nowrap; }
+  .note { border-left: 4px solid var(--tip-line); background: var(--tip-bg); padding: 10px 14px; border-radius: 6px; margin: 14px 0; }
+  .warn { border-left: 4px solid var(--warn-line); background: var(--warn-bg); padding: 10px 14px; border-radius: 6px; margin: 14px 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .card b { display: block; margin-bottom: 4px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps > li { counter-increment: s; position: relative; padding-left: 40px; margin-bottom: 14px; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+  kbd { font-family: inherit; font-size: 12.5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 6px; background: var(--panel); }
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+  .menu-btn { display: none; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 16px; }
+    nav.side ul { display: none; }
+    nav.side.open ul { display: block; }
+    .menu-btn { display: inline-block; margin-left: auto; font: inherit; font-size: 13px; background: none; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+    .brand { margin-bottom: 0; }
+    nav.side.open .brand { margin-bottom: 12px; }
+    main { padding: 20px 16px 60px; }
+    h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="side" id="side">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v9m0 0l-3.5-3.5M12 14l3.5-3.5M6 19h12"/></svg></div>
+      <div><b>YTDownloader</b><span>Version 1.0.0</span></div>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false">Menu</button>
+    </div>
+    <ul id="toc">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#download">Download</a></li>
+      <li><a href="#quick-setup">One-click setup</a></li>
+      <li><a href="#requirements">Requirements</a></li>
+      <li><a href="#cli">Command line</a></li>
+      <li><a href="#options">All options</a></li>
+      <li><a href="#web-ui">Web UI</a></li>
+      <li><a href="#quality">Quality options</a></li>
+      <li><a href="#resume">Pause and resume</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#structure">Project structure</a></li>
+      <li><a href="#build">Building from source</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#license">Disclaimer and license</a></li>
+    </ul>
+    <button class="theme" id="themeBtn">Switch theme</button>
+  </nav>
+
+  <main>
+    <section id="overview">
+      <h1>YTDownloader</h1>
+      <p class="lead">A small, fast YouTube downloader for Windows. Use it from CMD or from a web page on your own PC. Each file is downloaded over many connections at once, like IDM, and downloads can be paused and resumed.</p>
+<pre><code>ytd -url    →  download in the console (link → type → quality → download)
+ytd -ui     →  open the web UI in your browser (http://localhost:8765)</code></pre>
+      <div class="cards">
+        <div class="card"><b>Fast</b><p>8 connections per stream by default (up to 32). Video and audio download at the same time.</p></div>
+        <div class="card"><b>Pause / Resume</b><p>Continue later, even after closing the program or restarting the PC.</p></div>
+        <div class="card"><b>Up to 4K</b><p>Choose from the qualities the video really has, with the size of each.</p></div>
+        <div class="card"><b>Audio</b><p>Original M4A or Opus, or MP3 at 320, 192 or 128 kbps.</p></div>
+      </div>
+    </section>
+
+    <section id="download">
+      <h2>Download</h2>
+      <p>Get the files from the <a href="https://github.com/JayathuShehan/youtube-downloader/releases">Releases page</a> on GitHub.</p>
+      <div class="table-wrap"><table>
+        <tr><th>File</th><th>Use it when</th></tr>
+        <tr><td><code>YTDownloader-1.0.0-x64.zip</code></td><td><b>Recommended.</b> 64-bit Windows 10/11. Contains the exe, <code>ytd.cmd</code>, the docs, README and license.</td></tr>
+        <tr><td><code>YTDownloader-1.0.0-x64.exe</code></td><td>64-bit Windows, if you only want the program</td></tr>
+        <tr><td><code>YTDownloader-1.0.0-x86.zip</code></td><td>32-bit Windows (see the note below)</td></tr>
+        <tr><td><code>YTDownloader-1.0.0-x86.exe</code></td><td>32-bit Windows, program only</td></tr>
+        <tr><td>Source code (zip / tar.gz)</td><td>To build it yourself or run <a href="#quick-setup">one-click setup</a></td></tr>
+      </table></div>
+      <p>Not sure which you have? Open <b>Settings → System → About</b> and look at <b>System type</b>. Almost all PCs today are 64-bit.</p>
+      <div class="warn"><b>32-bit Windows:</b> YouTube needs Deno or Node.js to solve its JavaScript check, and neither of them supports 32-bit Windows anymore. On a real 32-bit PC, YouTube downloads may fail. The x86 build works fully on 64-bit Windows.</div>
+      <h3>After downloading</h3>
+      <ol class="steps">
+        <li>Extract the zip, e.g. to <code>C:\Tools\YTDownloader\</code>. If you downloaded only the exe, rename it to <code>YTDownloader.exe</code>. To use the short name <code>ytd</code>, put <code>ytd.cmd</code> from the zip next to it.</li>
+        <li>Install the <a href="#requirements">requirements</a>: ffmpeg and Deno.</li>
+        <li>Open CMD in that folder and run <code>ytd -url</code> or <code>ytd -ui</code>, or double-click <code>YTDownloader.exe</code> to open the web UI.</li>
+        <li>Optional: add the folder to your <b>PATH</b> so <code>ytd</code> works from any folder. Go to Start → "Edit the system environment variables" → Environment Variables → <code>Path</code> → New.</li>
+      </ol>
+      <div class="note">Windows SmartScreen may warn you because the exe isn't code-signed. Click <b>More info → Run anyway</b>, or build it yourself with one-click setup.</div>
+    </section>
+
+    <section id="quick-setup">
+      <h2>One-click setup (from source)</h2>
+      <p>Download the <b>Source code (zip)</b> from the Releases page, or clone the repository. Extract it, then <b>double-click <code>setup.bat</code></b>. It does the following:</p>
+      <ol class="steps">
+        <li><b>Checks for Python 3.10+</b> and installs Python 3.12 with <code>winget</code> if it's missing (just for your user account, and added to PATH).</li>
+        <li><b>Checks for ffmpeg</b> and installs it with <code>winget</code> if it's missing.</li>
+        <li><b>Checks for Deno or Node.js</b> and installs Deno with <code>winget</code> if neither is found.</li>
+        <li><b>Builds the program:</b> creates a Python virtual environment, installs the packages and builds <code>dist\YTDownloader.exe</code>, with <code>ytd.cmd</code> next to it.</li>
+        <li><b>Opens this documentation</b> and the <code>dist</code> folder.</li>
+      </ol>
+      <p>On 32-bit Windows it builds the 32-bit version into <code>dist-x86\</code> instead.</p>
+      <div class="note">Installing with winget accepts each package's license for you. If winget is missing, install <b>App Installer</b> from the Microsoft Store, or install Python, ffmpeg and Deno yourself, then run <code>setup.bat</code> again. If something fails, the window stays open so you can read the error.</div>
+    </section>
+
+    <section id="requirements">
+      <h2>Requirements</h2>
+      <div class="table-wrap"><table>
+        <tr><th>What</th><th>Why</th><th>How to install</th></tr>
+        <tr><td>Windows 10 or 11</td><td>The exe is built for Windows</td><td></td></tr>
+        <tr><td><b>ffmpeg</b></td><td>Joins video and audio, and converts to MP3</td><td><code>winget install Gyan.FFmpeg</code>, or put <code>ffmpeg.exe</code> next to <code>YTDownloader.exe</code></td></tr>
+        <tr><td><b>Deno</b> (or Node.js)</td><td>YouTube makes downloaders solve a JavaScript check before it serves full-speed streams</td><td><code>winget install DenoLand.Deno</code> or <code>winget install OpenJS.NodeJS</code></td></tr>
+        <tr><td>Python 3.10+</td><td>Only needed to build from source</td><td><code>winget install Python.Python.3.12</code></td></tr>
+      </table></div>
+      <p>To check that they're installed, run these in a <b>new</b> CMD window:</p>
+<pre><code>ffmpeg -version
+deno --version</code></pre>
+    </section>
+
+    <section id="cli">
+      <h2>Command line</h2>
+      <p>Open CMD in the folder that contains <code>YTDownloader.exe</code> and <code>ytd.cmd</code>, then run:</p>
+<pre><code>ytd -url</code></pre>
+      <p>The program asks you step by step:</p>
+<pre><code>? Enter URL: https://www.youtube.com/watch?v=aqz-KE-bpKQ
+Getting video info...
+
+Title   : Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film
+Channel : Blender
+Length  : 10:35
+
+? Select type
+   [1] Video
+   [2] Audio
+? Enter number [1]: 1
+
+? Select quality
+   [1] Best available (2160p60)
+   [2] 2160p60  (VP9, ~1.3 GB)
+   [3] 1440p60  (VP9, ~480.8 MB)
+   [4] 1080p60  (H.264, ~275.0 MB)
+   [5] 720p60  (H.264, ~172.9 MB)
+? Enter number [1]: 4
+
+? Save to (Enter = current folder) [C:\Users\you\Videos]:
+
+Stage : Downloading video + audio (1080p60)    Connections: 16
+[██████████████░░░░░░░░░░░░░░░░]  47.3%  130.1 / 275.0 MB  9.2 MB/s  ETA 00:15
+Keys: [P] pause  [R] resume  [Q] quit
+
+✔ Saved: C:\Users\you\Videos\Big Buck Bunny ... Short Film.mp4</code></pre>
+      <h3>Keys during a download</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Key</th><th>Action</th></tr>
+        <tr><td><kbd>P</kbd></td><td>Pause</td></tr>
+        <tr><td><kbd>R</kbd></td><td>Resume</td></tr>
+        <tr><td><kbd>Q</kbd> or <kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Save progress and quit. Run the same command again to continue.</td></tr>
+      </table></div>
+      <div class="note"><b>PowerShell:</b> PowerShell doesn't run programs from the current folder by name, so type <code>.\ytd -url</code> there.</div>
+    </section>
+
+    <section id="options">
+      <h2>All options</h2>
+<pre><code>ytd [-url [LINK] | -ui] [-o FOLDER] [-c N] [--port PORT] [--no-browser] [-v] [-h]</code></pre>
+      <div class="table-wrap"><table>
+        <tr><th>Option</th><th>Description</th></tr>
+        <tr><td><code>-url</code></td><td>Interactive console download. Asks for the link.</td></tr>
+        <tr><td><code>-url LINK</code></td><td>Same, but skips the link question</td></tr>
+        <tr><td><code>-ui</code></td><td>Starts the web UI and opens it in your browser</td></tr>
+        <tr><td><i>(no options)</i></td><td>Same as <code>-ui</code>. This also happens when you double-click the exe.</td></tr>
+        <tr><td><code>-o FOLDER</code>, <code>--output FOLDER</code></td><td>Folder to save into (console mode)</td></tr>
+        <tr><td><code>-c N</code>, <code>--connections N</code></td><td>Connections per stream, from 1 to 32. Default is 8.</td></tr>
+        <tr><td><code>--port PORT</code></td><td>Web UI port. Default is 8765. If it's taken, the next free port is used.</td></tr>
+        <tr><td><code>--no-browser</code></td><td>Starts the web UI without opening a browser</td></tr>
+        <tr><td><code>-v</code>, <code>--version</code></td><td>Shows the version</td></tr>
+        <tr><td><code>-h</code>, <code>--help</code></td><td>Shows help</td></tr>
+      </table></div>
+      <h3>Examples</h3>
+<pre><code>ytd -url
+ytd -url https://youtu.be/aqz-KE-bpKQ
+ytd -url https://youtu.be/aqz-KE-bpKQ -o D:\Videos
+ytd -url https://youtu.be/aqz-KE-bpKQ -c 16
+ytd -ui
+ytd -ui --port 9000</code></pre>
+    </section>
+
+    <section id="web-ui">
+      <h2>Web UI</h2>
+<pre><code>ytd -ui</code></pre>
+      <p>Your browser opens <code>http://localhost:8765</code>. The page is only reachable from your own PC. Keep the console window open while downloading. Closing it stops the downloads, but their progress is saved.</p>
+      <ol class="steps">
+        <li><b>Video link:</b> paste a link. The info loads automatically, or press <b>Fetch</b>. You'll see the thumbnail, title, channel and length.</li>
+        <li><b>Type:</b> choose Video or Audio.</li>
+        <li><b>Quality:</b> pick from the list. Each option shows its codec and estimated size.</li>
+        <li><b>Save to:</b> type a folder, or click <b>Browse…</b> to open the Windows folder picker. The default is your Downloads folder, and the last folder you used is remembered.</li>
+        <li><b>Connections:</b> 1, 4, 8, 16, 24 or 32 per stream.</li>
+        <li><b>Start</b>, <b>Pause</b>, <b>Resume</b>. After an error, Resume changes to <b>Retry</b>.</li>
+      </ol>
+      <h3>Progress panel</h3>
+      <ul>
+        <li>Overall progress bar and percentage</li>
+        <li>Current stage: getting info, downloading, merging, converting, completed</li>
+        <li>Downloaded / total size, speed, time left, active connections, quality</li>
+        <li>A bar for each stream (video and audio) showing every connection's segment filling up live</li>
+        <li><b>Show in folder</b> when finished, which opens Explorer with the file selected</li>
+        <li>A <b>Downloads this session</b> list when you start more than one download</li>
+      </ul>
+    </section>
+
+    <section id="quality">
+      <h2>Quality options</h2>
+      <h3>Video</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Option</th><th>Notes</th></tr>
+        <tr><td>Best available</td><td>The highest resolution and frame rate the video has</td></tr>
+        <tr><td>2160p / 1440p</td><td>4K / 2K. YouTube only offers these as VP9 or AV1.</td></tr>
+        <tr><td>1080p … 144p</td><td>H.264 is used when available, because it plays everywhere</td></tr>
+        <tr><td><code>60</code> suffix (e.g. 1080p60)</td><td>60 fps version</td></tr>
+      </table></div>
+      <p>Video is saved as <b>.mp4</b>: the chosen video stream plus the best AAC audio, joined without re-encoding. If a codec combination doesn't fit in MP4, the file is saved as <b>.mkv</b> instead.</p>
+      <h3>Audio</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Option</th><th>Output</th><th>Notes</th></tr>
+        <tr><td>Best original (M4A / AAC)</td><td><code>.m4a</code></td><td>Not re-encoded, so no quality loss</td></tr>
+        <tr><td>Best original (Opus)</td><td><code>.opus</code></td><td>Not re-encoded. Often a smaller file.</td></tr>
+        <tr><td>MP3 320 / 192 / 128 kbps</td><td><code>.mp3</code></td><td>Converted with ffmpeg (stereo)</td></tr>
+      </table></div>
+    </section>
+
+    <section id="resume">
+      <h2>Pause and resume</h2>
+      <p>While downloading, the program keeps two files in the save folder:</p>
+<pre><code>&lt;Title&gt; [&lt;video id&gt;].f&lt;format&gt;.part             ← the partly downloaded data
+&lt;Title&gt; [&lt;video id&gt;].f&lt;format&gt;.part.ytd.json    ← which bytes are already done</code></pre>
+      <ul>
+        <li><b>Pause</b> (button, <kbd>P</kbd>, <kbd>Q</kbd> or <kbd>Ctrl</kbd>+<kbd>C</kbd>) stops all connections and saves the progress file.</li>
+        <li><b>Resume</b> continues from the saved byte positions.</li>
+        <li><b>After closing the program or a crash:</b> run the same link with the same quality and the same folder, and it continues.</li>
+        <li>When the file is saved, both temporary files are deleted.</li>
+      </ul>
+      <p>To give up on a paused download, delete its <code>.part</code> and <code>.part.ytd.json</code> files.</p>
+    </section>
+
+    <section id="how">
+      <h2>How it works</h2>
+<pre><code>             ┌──────────────┐  stream links  ┌──────────────────────────────┐
+  link ───►  │    yt-dlp    │ ─────────────► │ segmented downloader         │
+             │ (extractor)  │                │  video: N parallel ranges ─┐ │
+             └──────────────┘                │  audio: N parallel ranges ─┤ │
+                    ▲  new link              └────────────────────────────┼─┘
+                    └── when a link expires (HTTP 403/410)                ▼
+                                                     ffmpeg: join / convert ──► final file</code></pre>
+      <ol>
+        <li><b>Getting the streams:</b> <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> is used as a library, only to read the video info and find the direct stream links. It also handles YouTube's signature and JavaScript checks.</li>
+        <li><b>Segmented downloading:</b> a tiny <code>Range: bytes=0-0</code> request finds the file size. The file is created at full size and split into N segments. Each connection downloads its segment in requests of up to 10 MB, because YouTube slows down very long single requests. When a connection finishes, it splits the largest remaining segment in half and takes the second half, so all connections stay busy.</li>
+        <li><b>Video and audio at the same time:</b> each stream has its own set of connections, so with 8 per stream, up to 16 run together.</li>
+        <li><b>Joining / converting:</b> <code>ffmpeg -c copy</code> joins the streams without re-encoding. Audio is re-encoded only for MP3.</li>
+        <li><b>Errors:</b> each connection retries with increasing waits. An expired link triggers a single refresh shared by all connections.</li>
+      </ol>
+      <p><b>Why it's faster:</b> YouTube limits the speed of each connection, and many connections together get close to your full internet speed. In testing on one connection, 1 connection reached about 5.4 MB/s and 16 connections about 9 MB/s, which was the full speed of that line.</p>
+    </section>
+
+    <section id="structure">
+      <h2>Project structure</h2>
+<pre><code>youtube-downloader/
+├─ ytd/
+│  ├─ __main__.py      command-line options (-url, -ui, ...)
+│  ├─ extractor.py     yt-dlp wrapper: info, quality list, stream selection, link refresh
+│  ├─ segdl.py         multi-connection segmented downloader with pause/resume
+│  ├─ job.py           one download: streams in parallel → join/convert → final file
+│  ├─ ffmpeg.py        finds ffmpeg; join, remux and MP3 conversion
+│  ├─ cli.py           interactive console mode and progress bar
+│  ├─ server.py        local web server and JSON API
+│  ├─ util.py          shared helpers
+│  └─ web/             web UI (index.html, style.css, app.js)
+├─ docs/index.html     this documentation
+├─ setup.bat           one-click setup (double-click)
+├─ setup.ps1           what setup.bat runs
+├─ build.ps1           build script (x64 or x86)
+├─ run_ytd.py          entry script for the exe
+├─ ytd.cmd             "ytd" shortcut
+├─ requirements.txt
+├─ LICENSE
+└─ README.md</code></pre>
+      <h3>Web UI API</h3>
+      <p>The server only accepts requests from <code>localhost</code>, and POST requests must send JSON.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Method</th><th>Path</th><th>Purpose</th></tr>
+        <tr><td>POST</td><td><code>/api/info</code></td><td><code>{url}</code> → title, thumbnail, channel, length, quality lists</td></tr>
+        <tr><td>POST</td><td><code>/api/start</code></td><td><code>{url, type, quality, folder, connections}</code> → <code>{job_id}</code></td></tr>
+        <tr><td>POST</td><td><code>/api/pause</code>, <code>/api/resume</code></td><td><code>{job_id}</code></td></tr>
+        <tr><td>GET</td><td><code>/api/status?job_id=</code></td><td>Progress snapshot</td></tr>
+        <tr><td>GET</td><td><code>/api/jobs</code></td><td>All downloads in this session</td></tr>
+        <tr><td>GET</td><td><code>/api/config</code></td><td>Default folder, connections, version</td></tr>
+        <tr><td>POST</td><td><code>/api/browse</code></td><td>Opens the Windows folder picker</td></tr>
+        <tr><td>POST</td><td><code>/api/open</code></td><td>Shows the finished file in Explorer</td></tr>
+      </table></div>
+    </section>
+
+    <section id="build">
+      <h2>Building from source</h2>
+      <p>The easiest way is <a href="#quick-setup">one-click setup</a>. To do it by hand, you need Python 3.10+ on Windows:</p>
+<pre><code>git clone https://github.com/JayathuShehan/youtube-downloader.git
+cd youtube-downloader
+powershell -ExecutionPolicy Bypass -File build.ps1</code></pre>
+      <div class="table-wrap"><table>
+        <tr><th>Command</th><th>Result</th></tr>
+        <tr><td><code>build.ps1</code></td><td>64-bit build → <code>dist\YTDownloader.exe</code></td></tr>
+        <tr><td><code>build.ps1 -Arch x86</code></td><td>32-bit build → <code>dist-x86\YTDownloader.exe</code> (needs a 32-bit Python)</td></tr>
+        <tr><td><code>build.ps1 -Python C:\path\python.exe</code></td><td>Uses a specific Python</td></tr>
+      </table></div>
+      <p>The script creates a virtual environment (<code>.venv</code>, or <code>.venv-x86</code> for 32-bit), installs <code>requirements.txt</code> and PyInstaller, builds a single-file exe and copies <code>ytd.cmd</code> next to it.</p>
+      <p>To get a 32-bit Python, use the python.org "Windows installer (32-bit)", or run <code>uv python install cpython-3.12-windows-x86-none</code>.</p>
+      <h3>Run without building</h3>
+<pre><code>python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python run_ytd.py -url
+.venv\Scripts\python run_ytd.py -ui</code></pre>
+      <h3>Keeping YouTube support up to date</h3>
+      <p>YouTube changes often. If downloads stop working, update yt-dlp and build again:</p>
+<pre><code>.venv\Scripts\python -m pip install -U yt-dlp yt-dlp-ejs
+powershell -ExecutionPolicy Bypass -File build.ps1</code></pre>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+      <div class="table-wrap"><table>
+        <tr><th>Problem</th><th>Fix</th></tr>
+        <tr><td><code>'ytd' is not recognized...</code></td><td>Run it from the folder with <code>ytd.cmd</code> and <code>YTDownloader.exe</code>, or add the folder to PATH. In PowerShell, use <code>.\ytd</code>.</td></tr>
+        <tr><td><code>ffmpeg was not found</code></td><td>Put <code>ffmpeg.exe</code> next to the exe, or run <code>winget install Gyan.FFmpeg</code> and open a new CMD window.</td></tr>
+        <tr><td>Formats missing, or download fails right away</td><td>Install Deno (<code>winget install DenoLand.Deno</code>) or Node.js, then update yt-dlp.</td></tr>
+        <tr><td><code>YouTube keeps refusing the stream (HTTP 403)</code></td><td>Use fewer connections (<code>-c 4</code>), wait a little and try again.</td></tr>
+        <tr><td>Private, age-restricted or members-only video</td><td>Not supported. These need a signed-in account.</td></tr>
+        <tr><td>Playlist link</td><td>Only single videos are supported. A link with <code>&amp;list=</code> downloads just that video.</td></tr>
+        <tr><td>Web UI doesn't open</td><td>Open <code>http://localhost:8765</code> yourself. The console shows the port being used.</td></tr>
+        <tr><td>Slow download</td><td>Try 16 connections. Your own internet speed is the upper limit.</td></tr>
+        <tr><td>SmartScreen warning</td><td>The exe isn't code-signed. Click <b>More info → Run anyway</b>, or build it yourself.</td></tr>
+        <tr><td><code>setup.bat</code> says winget is missing</td><td>Install <b>App Installer</b> from the Microsoft Store, or install Python, ffmpeg and Deno yourself.</td></tr>
+        <tr><td>Setup installed something but can't find it</td><td>Close the window and run <code>setup.bat</code> again, so it picks up the updated PATH.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="license">
+      <h2>Disclaimer and license</h2>
+      <p>This tool is for personal use. Only download videos you own or have permission to download, and follow <a href="https://www.youtube.com/t/terms">YouTube's Terms of Service</a> and your local copyright laws. The author is not responsible for how it is used.</p>
+      <p>Released under the MIT License. © 2026 Jayathu Shehan Dewmina</p>
+    </section>
+
+    <footer>YTDownloader 1.0.0 · <a href="https://github.com/JayathuShehan/youtube-downloader">GitHub repository</a></footer>
+  </main>
+</div>
+<script>
+  (function () {
+    var root = document.documentElement, btn = document.getElementById("themeBtn");
+    try { var saved = localStorage.getItem("ytd-docs-theme"); if (saved) root.setAttribute("data-theme", saved); } catch (e) {}
+    btn.addEventListener("click", function () {
+      var dark = root.getAttribute("data-theme") ? root.getAttribute("data-theme") === "dark"
+        : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var next = dark ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("ytd-docs-theme", next); } catch (e) {}
+    });
+    var side = document.getElementById("side"), menu = document.getElementById("menuBtn");
+    menu.addEventListener("click", function () {
+      var open = side.classList.toggle("open");
+      menu.setAttribute("aria-expanded", open);
+    });
+    var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+    links.forEach(function (a) { a.addEventListener("click", function () { side.classList.remove("open"); }); });
+    if ("IntersectionObserver" in window) {
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            links.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + en.target.id); });
+          }
+        });
+      }, { rootMargin: "0px 0px -70% 0px" });
+      document.querySelectorAll("main section").forEach(function (s) { obs.observe(s); });
+    }
+  })();
+</script>
+</body>
+</html>
