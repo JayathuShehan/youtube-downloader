@@ -14,8 +14,9 @@ ytd -ui     →  open the web UI in your browser (http://localhost:8765)
 ## Table of Contents
 
 - [Features](#features)
+- [Download](#download)
+- [One-Click Setup](#one-click-setup)
 - [Requirements](#requirements)
-- [Installation](#installation)
 - [Command-Line Usage](#command-line-usage)
 - [Web UI Usage](#web-ui-usage)
 - [Quality Options](#quality-options)
@@ -40,14 +41,59 @@ ytd -ui     →  open the web UI in your browser (http://localhost:8765)
 | **Quality choice** | Lists the qualities the video really has (2160p60, 1440p60, 1080p60, 720p … 144p), with the estimated size of each. |
 | **Audio modes** | Original M4A (AAC) or Opus with no re-encoding, or MP3 at 320, 192 or 128 kbps. |
 | **Two interfaces** | An interactive console mode, and a local web UI with a detailed progress view. |
-| **Single exe** | `YTDownloader.exe` with Python built in. `ytd.cmd` gives it the short name `ytd`. |
+| **Single exe** | `YTDownloader.exe` with Python built in, in 64-bit (x64) and 32-bit (x86) versions. `ytd.cmd` gives it the short name `ytd`. |
+| **One-click setup** | Double-click `setup.bat` to install everything, build the exe and open the documentation. |
 | **Local only** | The web UI listens on `127.0.0.1`, so other computers on your network can't reach it. |
+
+---
+
+## Download
+
+Get the files from the [Releases](https://github.com/JayathuShehan/youtube-downloader/releases) page.
+
+| File | Use it when |
+|---|---|
+| `YTDownloader-1.0.0-x64.zip` | **Recommended.** 64-bit Windows 10/11. Contains `YTDownloader.exe`, `ytd.cmd`, the docs page, README and LICENSE. |
+| `YTDownloader-1.0.0-x64.exe` | 64-bit Windows, if you only want the program |
+| `YTDownloader-1.0.0-x86.zip` | 32-bit Windows (see the note below) |
+| `YTDownloader-1.0.0-x86.exe` | 32-bit Windows, program only |
+| Source code (zip / tar.gz) | To build it yourself with [One-Click Setup](#one-click-setup) |
+
+Not sure which you have? Open **Settings → System → About** and look at **System type**. Almost all PCs today are 64-bit.
+
+> **32-bit Windows:** YouTube needs Deno or Node.js to solve its JavaScript check, and neither of them supports 32-bit Windows anymore. On a real 32-bit PC, YouTube downloads may fail. The x86 build works fully on 64-bit Windows.
+
+**After downloading:**
+
+1. Extract the zip, e.g. to `C:\Tools\YTDownloader\`. If you downloaded only the exe, rename it to `YTDownloader.exe`. To use the short name `ytd`, put `ytd.cmd` from the zip next to it.
+2. Install the [requirements](#requirements): ffmpeg and Deno.
+3. Open CMD in that folder and run `ytd -url` or `ytd -ui`, or double-click `YTDownloader.exe` to open the web UI.
+4. Optional: add the folder to your **PATH** so `ytd` works from any folder.
+   - Start → "Edit the system environment variables" → Environment Variables → `Path` → New → add the folder.
+
+Open `docs\index.html` (included in the zip) for the full documentation in your browser.
+
+---
+
+## One-Click Setup
+
+Building from source is a double-click away. Download **Source code (zip)** from the Releases page (or clone the repo), extract it, and **double-click `setup.bat`**. It does the following:
+
+1. **Checks for Python 3.10+** and installs Python 3.12 with `winget` if it's missing (just for your user account, and added to PATH).
+2. **Checks for ffmpeg** and installs it with `winget` if it's missing.
+3. **Checks for Deno or Node.js** and installs Deno with `winget` if neither is found.
+4. **Builds the program:** creates a virtual environment, installs the Python packages and builds `dist\YTDownloader.exe`, with `ytd.cmd` next to it.
+5. **Opens the documentation** (`docs\index.html`) in your browser, and opens the `dist` folder.
+
+On 32-bit Windows it builds the 32-bit version into `dist-x86\` instead.
+
+> Installing with winget accepts each package's license for you. If winget is missing, install **App Installer** from the Microsoft Store, or install Python, ffmpeg and Deno yourself, then run `setup.bat` again. If something fails, the window stays open so you can read the error.
 
 ---
 
 ## Requirements
 
-- **Windows 10 or 11** (64-bit)
+- **Windows 10 or 11** (64-bit recommended, see the 32-bit note above)
 - **ffmpeg** joins video and audio and converts to MP3.
   - Put `ffmpeg.exe` in the same folder as `YTDownloader.exe`, **or**
   - install it: `winget install Gyan.FFmpeg`
@@ -61,20 +107,7 @@ ffmpeg -version
 deno --version
 ```
 
----
-
-## Installation
-
-### Option 1: Use the ready-made exe
-
-1. Download `YTDownloader.exe` and `ytd.cmd` from the [Releases](../../releases) page.
-2. Put **both files in the same folder**, e.g. `C:\Tools\YTDownloader\`.
-3. Optional: add that folder to your **PATH** so `ytd` works from any folder.
-   - Start → "Edit the system environment variables" → Environment Variables → `Path` → New → add the folder.
-
-### Option 2: Build it yourself
-
-See [Building from Source](#building-from-source).
+- **Python 3.10+** is only needed to build from source. [One-Click Setup](#one-click-setup) installs it for you.
 
 ---
 
@@ -280,9 +313,13 @@ youtube-downloader/
 │     ├─ index.html    web UI page
 │     ├─ style.css     styles (light and dark theme)
 │     └─ app.js        UI logic: fetch, start/pause/resume, live progress
+├─ docs/
+│  └─ index.html       full documentation page (opens in any browser, works offline)
+├─ setup.bat           one-click setup: double-click to install, build and open the docs
+├─ setup.ps1           what setup.bat runs
+├─ build.ps1           build script (PyInstaller, x64 or x86)
 ├─ run_ytd.py          entry script used to build the exe
 ├─ ytd.cmd             "ytd" shortcut for YTDownloader.exe
-├─ build.ps1           build script (PyInstaller)
 ├─ requirements.txt    Python dependencies
 ├─ LICENSE
 └─ README.md
@@ -308,7 +345,7 @@ The web server only accepts requests from `localhost`, and POST requests must se
 
 ## Building from Source
 
-You need **Python 3.12 or newer** on Windows.
+The easiest way is [One-Click Setup](#one-click-setup) (double-click `setup.bat`). To do it by hand, you need **Python 3.10 or newer** on Windows.
 
 ```powershell
 git clone https://github.com/JayathuShehan/youtube-downloader.git
@@ -316,12 +353,20 @@ cd youtube-downloader
 powershell -ExecutionPolicy Bypass -File build.ps1
 ```
 
+| Command | Result |
+|---|---|
+| `build.ps1` | 64-bit build → `dist\YTDownloader.exe` |
+| `build.ps1 -Arch x86` | 32-bit build → `dist-x86\YTDownloader.exe` (needs a 32-bit Python) |
+| `build.ps1 -Python C:\path\python.exe` | Uses a specific Python |
+
 `build.ps1` does the following:
 
-1. creates a `.venv` virtual environment, if it doesn't exist yet
+1. finds a suitable Python (64-bit or 32-bit) and creates a virtual environment: `.venv`, or `.venv-x86` for 32-bit
 2. installs `requirements.txt` and PyInstaller
-3. builds a single-file `dist\YTDownloader.exe`, including the web UI files and yt-dlp's JavaScript challenge solver
-4. copies `ytd.cmd` into `dist\`
+3. builds a single-file `YTDownloader.exe`, including the web UI files and yt-dlp's JavaScript challenge solver
+4. copies `ytd.cmd` next to the exe
+
+**32-bit Python:** use the python.org "Windows installer (32-bit)", or run `uv python install cpython-3.12-windows-x86-none`.
 
 ### Run without building
 
@@ -365,6 +410,8 @@ powershell -ExecutionPolicy Bypass -File build.ps1
 | Web UI doesn't open | Open `http://localhost:8765` yourself. If that port is busy, the console shows the port being used. |
 | Download is slow | Try 16 connections. Also check your own internet speed, which is the upper limit. |
 | Windows SmartScreen warning | The exe isn't code-signed. Click **More info → Run anyway**, or build it yourself. |
+| `setup.bat` says winget is missing | Install **App Installer** from the Microsoft Store, or install Python, ffmpeg and Deno yourself. |
+| Setup installed something but can't find it | Close the window and run `setup.bat` again, so it picks up the updated PATH. |
 
 ---
 
