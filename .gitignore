@@ -2,12 +2,18 @@
 __pycache__/
 *.py[cod]
 .venv/
+.venv-x86/
 venv/
 
 # PyInstaller output
 build/
+build-x86/
 dist/
+dist-x86/
 *.spec
+
+# Release packages
+release/
 
 # Unfinished downloads
 *.part
