@@ -123,6 +123,15 @@ ytd -ui     →  open the web UI in your browser (http://localhost:8765)</code><
 
     <section id="download">
       <h2>Download</h2>
+      <h3>Install with winget (easiest)</h3>
+<pre><code>winget install JayathuShehan.YTDownloader</code></pre>
+      <p>This one command installs YTDownloader together with <b>ffmpeg</b> and <b>Deno</b> (on 64-bit Windows), and adds the <b><code>ytd</code></b> command to your PATH. Open a <b>new</b> terminal afterwards, then <code>ytd -url</code> and <code>ytd -ui</code> work from any folder, in CMD and PowerShell.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Task</th><th>Command</th></tr>
+        <tr><td>Update to the latest version</td><td><code>winget upgrade JayathuShehan.YTDownloader</code></td></tr>
+        <tr><td>Uninstall</td><td><code>winget uninstall JayathuShehan.YTDownloader</code></td></tr>
+      </table></div>
+      <h3>Download manually</h3>
       <p>Get the files from the <a href="https://github.com/JayathuShehan/youtube-downloader/releases">Releases page</a> on GitHub.</p>
       <div class="table-wrap"><table>
         <tr><th>File</th><th>Use it when</th></tr>
