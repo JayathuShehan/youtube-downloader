@@ -25,3 +25,6 @@ release/
 .idea/
 Thumbs.db
 desktop.ini
+
+# Never commit browser cookies
+cookies*.txt
