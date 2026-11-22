@@ -47,6 +47,8 @@ h2 { font-size: 15px; margin: 0 0 8px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
 .lbl { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 12px 0 6px; text-transform: uppercase; letter-spacing: .04em; }
 .card > .lbl:first-child { margin-top: 0; }
+.lbl .hint { font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 6px; }
+.cookie-file { margin-top: 8px; }
 .row { display: flex; gap: 8px; align-items: center; }
 .spacer { flex: 1; }
 input, select {

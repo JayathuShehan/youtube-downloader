@@ -4,6 +4,8 @@
     url: $("url"), fetch: $("fetch"), msg: $("msg"), preview: $("preview"), thumb: $("thumb"),
     title: $("title"), uploader: $("uploader"), duration: $("duration"), quality: $("quality"),
     folder: $("folder"), browse: $("browse"), connections: $("connections"),
+    cookies: $("cookies"), cookieFileRow: $("cookieFileRow"), cookieFile: $("cookieFile"),
+    browseCookie: $("browseCookie"),
     start: $("start"), pause: $("pause"), resume: $("resume"),
     pCard: $("progressCard"), pTitle: $("pTitle"), pState: $("pState"), pFill: $("pFill"),
     pPercent: $("pPercent"), pStage: $("pStage"), sDone: $("sDone"), sTotal: $("sTotal"),
@@ -54,6 +56,21 @@
   function savePref(key, value) { try { localStorage.setItem("ytd." + key, value); } catch (_) {} }
   function loadPref(key) { try { return localStorage.getItem("ytd." + key); } catch (_) { return null; } }
 
+  function cookieSetting() {
+    const v = el.cookies.value;
+    if (v === "file") return el.cookieFile.value.trim() ? { file: el.cookieFile.value.trim() } : null;
+    return v ? { browser: v } : null;
+  }
+
+  function saveCookiePrefs() {
+    savePref("cookies", el.cookies.value);
+    savePref("cookieFile", el.cookieFile.value.trim());
+  }
+
+  function showCookieFile() {
+    el.cookieFileRow.hidden = el.cookies.value !== "file";
+  }
+
   // ------------------------------------------------------------------ fetch
   async function fetchInfo() {
     const url = el.url.value.trim();
@@ -62,7 +79,7 @@
     el.start.disabled = true;
     setMsg("Getting video info…");
     try {
-      options = await api("/api/info", { url });
+      options = await api("/api/info", { url, cookies: cookieSetting() });
       optionsUrl = url;
       el.thumb.src = options.thumbnail || "";
       el.title.textContent = options.title;
@@ -116,6 +133,7 @@
     try {
       const r = await api("/api/start", {
         url, type, quality: el.quality.value, folder, connections: Number(el.connections.value),
+        cookies: cookieSetting(),
       });
       currentJob = r.job_id;
       poll();
@@ -143,6 +161,18 @@
       setMsg(e.message, true);
     } finally {
       el.browse.disabled = false;
+    }
+  }
+
+  async function browseCookie() {
+    el.browseCookie.disabled = true;
+    try {
+      const r = await api("/api/browse_file", { file: el.cookieFile.value.trim() });
+      if (r.file) { el.cookieFile.value = r.file; saveCookiePrefs(); }
+    } catch (e) {
+      setMsg(e.message, true);
+    } finally {
+      el.browseCookie.disabled = false;
     }
   }
 
@@ -230,12 +260,21 @@
   el.pause.onclick = () => control("pause");
   el.resume.onclick = () => control("resume");
   el.browse.onclick = browse;
+  el.browseCookie.onclick = browseCookie;
+  el.cookies.onchange = () => { showCookieFile(); saveCookiePrefs(); };
+  el.cookieFile.onchange = saveCookiePrefs;
   el.openFolder.onclick = () => currentJob && api("/api/open", { job_id: currentJob }).catch((e) => setMsg(e.message, true));
 
   api("/api/config").then((c) => {
     el.folder.value = loadPref("folder") || c.folder;
     el.connections.value = loadPref("connections") || String(c.connections);
     el.version.textContent = `v${c.version}`;
+    // Saved choice wins; otherwise use --cookies / --cookies-from-browser from the command line.
+    const saved = loadPref("cookies");
+    const ck = c.cookies || {};
+    el.cookies.value = saved !== null ? saved : ck.file ? "file" : (ck.browser || "").split(":")[0];
+    el.cookieFile.value = loadPref("cookieFile") || ck.file || "";
+    showCookieFile();
   }).catch(() => {});
 
   setInterval(() => {

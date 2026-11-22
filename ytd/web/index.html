@@ -57,6 +57,22 @@
         <button id="browse" class="btn ghost">Browse…</button>
       </div>
 
+      <label class="lbl" for="cookies">Cookies <span class="hint">only needed if YouTube asks you to confirm you're not a bot</span></label>
+      <select id="cookies">
+        <option value="">None</option>
+        <option value="firefox">From Firefox</option>
+        <option value="chrome">From Chrome</option>
+        <option value="edge">From Edge</option>
+        <option value="brave">From Brave</option>
+        <option value="opera">From Opera</option>
+        <option value="vivaldi">From Vivaldi</option>
+        <option value="file">From a cookies.txt file…</option>
+      </select>
+      <div class="row cookie-file" id="cookieFileRow" hidden>
+        <input id="cookieFile" type="text" spellcheck="false" placeholder="Path to cookies.txt">
+        <button id="browseCookie" class="btn ghost">Browse…</button>
+      </div>
+
       <div class="row actions">
         <label class="conn">Connections
           <select id="connections">

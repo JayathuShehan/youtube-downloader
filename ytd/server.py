@@ -19,7 +19,7 @@ WEB_DIR = resource_path("ytd", "web")
 _jobs = {}
 _info_cache = {}
 _dialog_lock = threading.Lock()
-_settings = {"connections": 8}
+_settings = {"connections": 8, "cookies": None}
 
 
 def _pick_folder(initial):
@@ -37,6 +37,32 @@ def _pick_folder(initial):
         finally:
             root.destroy()
         return os.path.normpath(path) if path else None
+
+
+def _pick_file(initial):
+    """Native file picker for a cookies.txt file."""
+    with _dialog_lock:
+        import tkinter
+        from tkinter import filedialog
+
+        root = tkinter.Tk()
+        root.withdraw()
+        root.attributes("-topmost", True)
+        try:
+            path = filedialog.askopenfilename(
+                parent=root, title="Select cookies.txt file",
+                initialdir=os.path.dirname(initial) if initial else default_download_dir(),
+                filetypes=[("Cookies file", "*.txt"), ("All files", "*.*")])
+        finally:
+            root.destroy()
+        return os.path.normpath(path) if path else None
+
+
+def _cookies(data):
+    """Cookie setting from a request; falls back to the one given on the command line."""
+    if "cookies" in data:
+        return extractor.parse_cookies(data.get("cookies"))
+    return _settings["cookies"]
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -83,7 +109,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, {"jobs": [j.snapshot() for j in jobs]})
         if url.path == "/api/config":
             return self._send(200, {"folder": default_download_dir(), "connections": _settings["connections"],
-                                    "version": __version__})
+                                    "cookies": _settings["cookies"], "version": __version__})
         return self._static(url.path)
 
     def _static(self, path):
@@ -109,7 +135,7 @@ class Handler(BaseHTTPRequestHandler):
             path = urlparse(self.path).path
             if path == "/api/info":
                 url = (data.get("url") or "").strip()
-                info = extractor.fetch_info(url)
+                info = extractor.fetch_info(url, _cookies(data))
                 _info_cache[url] = info
                 return self._send(200, extractor.build_options(info))
             if path == "/api/start":
@@ -125,7 +151,7 @@ class Handler(BaseHTTPRequestHandler):
                             url, kind, quality, os.path.abspath(folder)) and existing.state not in ("done", "error"):
                         existing.resume()
                         return self._send(200, {"job_id": existing.id})
-                job = Job(url, kind, quality, folder, conns, info=_info_cache.get(url))
+                job = Job(url, kind, quality, folder, conns, info=_info_cache.get(url), cookies=_cookies(data))
                 _jobs[job.id] = job
                 job.start()
                 return self._send(200, {"job_id": job.id})
@@ -135,6 +161,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"ok": self._job(data).resume()})
             if path == "/api/browse":
                 return self._send(200, {"folder": _pick_folder(data.get("folder"))})
+            if path == "/api/browse_file":
+                return self._send(200, {"file": _pick_file(data.get("file"))})
             if path == "/api/open":
                 job = self._job(data)
                 target = job.output if job.output and os.path.exists(job.output) else job.folder
@@ -165,8 +193,9 @@ def _free_port(preferred):
     raise OSError("No free port found.")
 
 
-def run(port=8765, open_browser=True, connections=8):
+def run(port=8765, open_browser=True, connections=8, cookies=None):
     _settings["connections"] = connections
+    _settings["cookies"] = cookies
     port = _free_port(port)
     httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     httpd.daemon_threads = True
