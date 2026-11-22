@@ -19,6 +19,7 @@ ytd -ui     →  open the web UI in your browser (http://localhost:8765)
 - [Requirements](#requirements)
 - [Command-Line Usage](#command-line-usage)
 - [Web UI Usage](#web-ui-usage)
+- [Cookies ("confirm you're not a bot")](#cookies-confirm-youre-not-a-bot)
 - [Quality Options](#quality-options)
 - [Pause and Resume](#pause-and-resume)
 - [How It Works](#how-it-works)
@@ -44,6 +45,7 @@ ytd -ui     →  open the web UI in your browser (http://localhost:8765)
 | **Two interfaces** | An interactive console mode, and a local web UI with a detailed progress view. |
 | **Single exe** | `YTDownloader.exe` with Python built in, in 64-bit (x64) and 32-bit (x86) versions. `ytd.cmd` gives it the short name `ytd`. |
 | **One-click setup** | Double-click `setup.bat` to install everything, build the exe and open the documentation. |
+| **Cookies support** | If YouTube asks you to confirm you're not a bot, use cookies from a `cookies.txt` file or straight from a browser. |
 | **Local only** | The web UI listens on `127.0.0.1`, so other computers on your network can't reach it. |
 
 ---
@@ -182,7 +184,8 @@ Keys: [P] pause  [R] resume  [Q] quit (progress is saved, run again to resume)
 ### All options
 
 ```
-ytd [-url [LINK] | -ui] [-o FOLDER] [-c N] [--port PORT] [--no-browser] [-v] [-h]
+ytd [-url [LINK] | -ui] [-o FOLDER] [-c N] [--cookies FILE | --cookies-from-browser BROWSER]
+    [--port PORT] [--no-browser] [-v] [-h]
 ```
 
 | Option | Description |
@@ -193,6 +196,8 @@ ytd [-url [LINK] | -ui] [-o FOLDER] [-c N] [--port PORT] [--no-browser] [-v] [-h
 | *(no options)* | Same as `-ui`. This is also what happens when you double-click the exe. |
 | `-o FOLDER`, `--output FOLDER` | Folder to save into (console mode). |
 | `-c N`, `--connections N` | Connections per stream, from 1 to 32. Default is 8. |
+| `--cookies FILE` | Uses cookies from a `cookies.txt` file. See [Cookies](#cookies-confirm-youre-not-a-bot). |
+| `--cookies-from-browser BROWSER` | Uses cookies from a browser: `firefox`, `chrome`, `edge`, `brave`, `opera` or `vivaldi`. Add `:PROFILE` for a specific profile. |
 | `--port PORT` | Port for the web UI. Default is 8765. If it's taken, the next free port is used. |
 | `--no-browser` | Starts the web UI server without opening a browser. |
 | `-v`, `--version` | Shows the version. |
@@ -207,6 +212,8 @@ ytd -url
 ytd -url https://youtu.be/aqz-KE-bpKQ
 ytd -url https://youtu.be/aqz-KE-bpKQ -o D:\Videos
 ytd -url https://youtu.be/aqz-KE-bpKQ -c 16
+ytd -url https://youtu.be/aqz-KE-bpKQ --cookies C:\Users\you\cookies.txt
+ytd -url --cookies-from-browser firefox
 ytd -ui
 ytd -ui --port 9000
 ```
@@ -227,8 +234,9 @@ Your browser opens **http://localhost:8765**. Keep the console window open while
 2. **Type**: choose **Video** or **Audio**.
 3. **Quality**: pick from the list. Each option shows its codec and estimated size.
 4. **Save to**: type a folder, or click **Browse…** to open the Windows folder picker. The default is your `Downloads` folder, and the last folder you used is remembered.
-5. **Connections**: 1, 4, 8, 16, 24 or 32 per stream.
-6. **Start**, **Pause**, **Resume**. After an error, Resume changes to **Retry**.
+5. **Cookies**: leave this on **None** unless YouTube asks you to confirm you're not a bot. Then pick a browser, or **From a cookies.txt file…** and choose the file. See [Cookies](#cookies-confirm-youre-not-a-bot).
+6. **Connections**: 1, 4, 8, 16, 24 or 32 per stream.
+7. **Start**, **Pause**, **Resume**. After an error, Resume changes to **Retry**.
 
 ### Progress panel
 
@@ -239,6 +247,38 @@ Your browser opens **http://localhost:8765**. Keep the console window open while
 - **Show in folder** when finished, which opens Explorer with the file selected
 
 If you start more than one download, a **Downloads this session** list appears. Click an item to view its progress.
+
+---
+
+## Cookies ("confirm you're not a bot")
+
+Sometimes YouTube refuses to give video details and shows this error:
+
+> Sign in to confirm you're not a bot.
+
+YouTube decides this based on your IP address. It happens more often after many downloads in a short time, on a VPN or proxy, or on shared networks. Waiting a few hours or switching networks often clears it. The reliable fix is to give YTDownloader the cookies of a browser where you are **signed in to YouTube**. YouTube then treats the requests as coming from you.
+
+**Option 1: a cookies.txt file (works with every browser)**
+
+1. In your browser, sign in to YouTube.
+2. Install an extension that exports cookies in the Netscape `cookies.txt` format, for example **Get cookies.txt LOCALLY** (Chrome/Edge) or **cookies.txt** (Firefox).
+3. Open youtube.com, click the extension, and export the cookies for that site to a file.
+4. Use the file:
+   - Web UI: **Cookies → From a cookies.txt file…**, then **Browse…** to the file.
+   - CLI: `ytd -url --cookies C:\path\to\cookies.txt`
+
+Cookies expire after a while. If the error comes back, export a fresh file.
+
+**Option 2: read cookies straight from a browser**
+
+- Web UI: **Cookies → From Firefox** (or another browser).
+- CLI: `ytd -url --cookies-from-browser firefox`
+
+This works best with **Firefox**. Chrome, Edge and other Chromium browsers lock their cookie database while open and encrypt it, so reading from them often fails. Use Option 1 for those.
+
+> **Keep your cookies private.** A cookies file lets anyone use your YouTube account. Don't share it or commit it to a repository. YTDownloader only sends the cookies to YouTube.
+
+The web UI remembers your choice. `--cookies` and `--cookies-from-browser` also work with `-ui` and set the default there.
 
 ---
 
@@ -345,16 +385,19 @@ youtube-downloader/
 
 The web server only accepts requests from `localhost`, and POST requests must send JSON.
 
+`cookies` is `{"browser": "firefox"}`, `{"file": "C:\\path\\cookies.txt"}` or `null`.
+
 | Method | Path | Body / query | Returns |
 |---|---|---|---|
-| `POST` | `/api/info` | `{url}` | title, thumbnail, channel, length, video and audio quality lists |
-| `POST` | `/api/start` | `{url, type, quality, folder, connections}` | `{job_id}` |
+| `POST` | `/api/info` | `{url, cookies?}` | title, thumbnail, channel, length, video and audio quality lists |
+| `POST` | `/api/start` | `{url, type, quality, folder, connections, cookies?}` | `{job_id}` |
 | `POST` | `/api/pause` | `{job_id}` | `{ok}` |
 | `POST` | `/api/resume` | `{job_id}` | `{ok}` |
 | `GET` | `/api/status?job_id=` | | progress snapshot (state, stage, bytes, speed, ETA, segments for each stream) |
 | `GET` | `/api/jobs` | | all downloads in this session |
-| `GET` | `/api/config` | | default folder, connections, version |
+| `GET` | `/api/config` | | default folder, connections, cookies, version |
 | `POST` | `/api/browse` | `{folder}` | opens the Windows folder picker and returns `{folder}` |
+| `POST` | `/api/browse_file` | `{file}` | opens the Windows file picker for a cookies file and returns `{file}` |
 | `POST` | `/api/open` | `{job_id}` | shows the finished file in Explorer |
 
 ---
@@ -420,8 +463,10 @@ powershell -ExecutionPolicy Bypass -File build.ps1
 | `'ytd' is not recognized...` | Run it from the folder that has `ytd.cmd` and `YTDownloader.exe`, or add that folder to PATH. In PowerShell, use `.\ytd`. |
 | `ffmpeg was not found` | Put `ffmpeg.exe` next to `YTDownloader.exe`, or run `winget install Gyan.FFmpeg` and open a new CMD window. |
 | Formats missing, or download fails right away | Install Deno (`winget install DenoLand.Deno`) or Node.js, then update yt-dlp (see above). |
+| `Sign in to confirm you're not a bot` | Use cookies from a browser where you are signed in to YouTube. See [Cookies](#cookies-confirm-youre-not-a-bot). |
+| `Could not read cookies from Chrome` (or Edge) | Chromium browsers lock and encrypt their cookies. Export a `cookies.txt` file instead, or use Firefox. |
 | `YouTube keeps refusing the stream (HTTP 403)` | Use fewer connections (`-c 4`), wait a little, and try again. |
-| Private, age-restricted or members-only video | Not supported. These need a signed-in account. |
+| Private, age-restricted or members-only video | These need a signed-in account. They may work with [cookies](#cookies-confirm-youre-not-a-bot) from an account that can watch them. |
 | Playlist link | Only single videos are supported. A link with `&list=` downloads just that video. |
 | Web UI doesn't open | Open `http://localhost:8765` yourself. If that port is busy, the console shows the port being used. |
 | Download is slow | Try 16 connections. Also check your own internet speed, which is the upper limit. |

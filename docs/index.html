@@ -96,6 +96,7 @@
       <li><a href="#cli">Command line</a></li>
       <li><a href="#options">All options</a></li>
       <li><a href="#web-ui">Web UI</a></li>
+      <li><a href="#cookies">Cookies (not a bot)</a></li>
       <li><a href="#quality">Quality options</a></li>
       <li><a href="#resume">Pause and resume</a></li>
       <li><a href="#how">How it works</a></li>
@@ -225,7 +226,8 @@ Keys: [P] pause  [R] resume  [Q] quit
 
     <section id="options">
       <h2>All options</h2>
-<pre><code>ytd [-url [LINK] | -ui] [-o FOLDER] [-c N] [--port PORT] [--no-browser] [-v] [-h]</code></pre>
+<pre><code>ytd [-url [LINK] | -ui] [-o FOLDER] [-c N] [--cookies FILE | --cookies-from-browser BROWSER]
+    [--port PORT] [--no-browser] [-v] [-h]</code></pre>
       <div class="table-wrap"><table>
         <tr><th>Option</th><th>Description</th></tr>
         <tr><td><code>-url</code></td><td>Interactive console download. Asks for the link.</td></tr>
@@ -234,6 +236,8 @@ Keys: [P] pause  [R] resume  [Q] quit
         <tr><td><i>(no options)</i></td><td>Same as <code>-ui</code>. This also happens when you double-click the exe.</td></tr>
         <tr><td><code>-o FOLDER</code>, <code>--output FOLDER</code></td><td>Folder to save into (console mode)</td></tr>
         <tr><td><code>-c N</code>, <code>--connections N</code></td><td>Connections per stream, from 1 to 32. Default is 8.</td></tr>
+        <tr><td><code>--cookies FILE</code></td><td>Uses cookies from a <code>cookies.txt</code> file. See <a href="#cookies">Cookies</a>.</td></tr>
+        <tr><td><code>--cookies-from-browser BROWSER</code></td><td>Uses cookies from a browser: <code>firefox</code>, <code>chrome</code>, <code>edge</code>, <code>brave</code>, <code>opera</code> or <code>vivaldi</code>. Add <code>:PROFILE</code> for a specific profile.</td></tr>
         <tr><td><code>--port PORT</code></td><td>Web UI port. Default is 8765. If it's taken, the next free port is used.</td></tr>
         <tr><td><code>--no-browser</code></td><td>Starts the web UI without opening a browser</td></tr>
         <tr><td><code>-v</code>, <code>--version</code></td><td>Shows the version</td></tr>
@@ -244,6 +248,8 @@ Keys: [P] pause  [R] resume  [Q] quit
 ytd -url https://youtu.be/aqz-KE-bpKQ
 ytd -url https://youtu.be/aqz-KE-bpKQ -o D:\Videos
 ytd -url https://youtu.be/aqz-KE-bpKQ -c 16
+ytd -url https://youtu.be/aqz-KE-bpKQ --cookies C:\Users\you\cookies.txt
+ytd -url --cookies-from-browser firefox
 ytd -ui
 ytd -ui --port 9000</code></pre>
     </section>
@@ -257,6 +263,7 @@ ytd -ui --port 9000</code></pre>
         <li><b>Type:</b> choose Video or Audio.</li>
         <li><b>Quality:</b> pick from the list. Each option shows its codec and estimated size.</li>
         <li><b>Save to:</b> type a folder, or click <b>Browse…</b> to open the Windows folder picker. The default is your Downloads folder, and the last folder you used is remembered.</li>
+        <li><b>Cookies:</b> leave this on <b>None</b> unless YouTube asks you to confirm you're not a bot. Then pick a browser, or <b>From a cookies.txt file…</b> and choose the file. See <a href="#cookies">Cookies</a>.</li>
         <li><b>Connections:</b> 1, 4, 8, 16, 24 or 32 per stream.</li>
         <li><b>Start</b>, <b>Pause</b>, <b>Resume</b>. After an error, Resume changes to <b>Retry</b>.</li>
       </ol>
@@ -269,6 +276,24 @@ ytd -ui --port 9000</code></pre>
         <li><b>Show in folder</b> when finished, which opens Explorer with the file selected</li>
         <li>A <b>Downloads this session</b> list when you start more than one download</li>
       </ul>
+    </section>
+
+    <section id="cookies">
+      <h2>Cookies ("confirm you're not a bot")</h2>
+      <p>Sometimes YouTube refuses to give video details and shows <i>"Sign in to confirm you're not a bot."</i> YouTube decides this based on your IP address. It happens more often after many downloads in a short time, on a VPN or proxy, or on shared networks. Waiting a few hours or switching networks often clears it.</p>
+      <p>The reliable fix is to give YTDownloader the cookies of a browser where you are <b>signed in to YouTube</b>. YouTube then treats the requests as coming from you.</p>
+      <h3>Option 1: a cookies.txt file (works with every browser)</h3>
+      <ol class="steps">
+        <li>In your browser, sign in to YouTube.</li>
+        <li>Install an extension that exports cookies in the Netscape <code>cookies.txt</code> format, for example <b>Get cookies.txt LOCALLY</b> (Chrome/Edge) or <b>cookies.txt</b> (Firefox).</li>
+        <li>Open youtube.com, click the extension, and export the cookies for that site to a file.</li>
+        <li>Web UI: <b>Cookies → From a cookies.txt file…</b>, then <b>Browse…</b> to the file. CLI: <code>ytd -url --cookies C:\path\to\cookies.txt</code></li>
+      </ol>
+      <p>Cookies expire after a while. If the error comes back, export a fresh file.</p>
+      <h3>Option 2: read cookies straight from a browser</h3>
+      <p>Web UI: <b>Cookies → From Firefox</b> (or another browser). CLI: <code>ytd -url --cookies-from-browser firefox</code></p>
+      <p>This works best with <b>Firefox</b>. Chrome, Edge and other Chromium browsers lock their cookie database while open and encrypt it, so reading from them often fails. Use Option 1 for those.</p>
+      <div class="note"><b>Keep your cookies private.</b> A cookies file lets anyone use your YouTube account. Don't share it or commit it to a repository. YTDownloader only sends the cookies to YouTube. The web UI remembers your choice, and <code>--cookies</code> / <code>--cookies-from-browser</code> also set the default for <code>-ui</code>.</div>
     </section>
 
     <section id="quality">
@@ -350,13 +375,14 @@ ytd -ui --port 9000</code></pre>
       <p>The server only accepts requests from <code>localhost</code>, and POST requests must send JSON.</p>
       <div class="table-wrap"><table>
         <tr><th>Method</th><th>Path</th><th>Purpose</th></tr>
-        <tr><td>POST</td><td><code>/api/info</code></td><td><code>{url}</code> → title, thumbnail, channel, length, quality lists</td></tr>
-        <tr><td>POST</td><td><code>/api/start</code></td><td><code>{url, type, quality, folder, connections}</code> → <code>{job_id}</code></td></tr>
+        <tr><td>POST</td><td><code>/api/info</code></td><td><code>{url, cookies?}</code> → title, thumbnail, channel, length, quality lists</td></tr>
+        <tr><td>POST</td><td><code>/api/start</code></td><td><code>{url, type, quality, folder, connections, cookies?}</code> → <code>{job_id}</code></td></tr>
         <tr><td>POST</td><td><code>/api/pause</code>, <code>/api/resume</code></td><td><code>{job_id}</code></td></tr>
         <tr><td>GET</td><td><code>/api/status?job_id=</code></td><td>Progress snapshot</td></tr>
         <tr><td>GET</td><td><code>/api/jobs</code></td><td>All downloads in this session</td></tr>
-        <tr><td>GET</td><td><code>/api/config</code></td><td>Default folder, connections, version</td></tr>
+        <tr><td>GET</td><td><code>/api/config</code></td><td>Default folder, connections, cookies, version</td></tr>
         <tr><td>POST</td><td><code>/api/browse</code></td><td>Opens the Windows folder picker</td></tr>
+        <tr><td>POST</td><td><code>/api/browse_file</code></td><td>Opens the Windows file picker for a cookies file</td></tr>
         <tr><td>POST</td><td><code>/api/open</code></td><td>Shows the finished file in Explorer</td></tr>
       </table></div>
     </section>
@@ -393,8 +419,10 @@ powershell -ExecutionPolicy Bypass -File build.ps1</code></pre>
         <tr><td><code>'ytd' is not recognized...</code></td><td>Run it from the folder with <code>ytd.cmd</code> and <code>YTDownloader.exe</code>, or add the folder to PATH. In PowerShell, use <code>.\ytd</code>.</td></tr>
         <tr><td><code>ffmpeg was not found</code></td><td>Put <code>ffmpeg.exe</code> next to the exe, or run <code>winget install Gyan.FFmpeg</code> and open a new CMD window.</td></tr>
         <tr><td>Formats missing, or download fails right away</td><td>Install Deno (<code>winget install DenoLand.Deno</code>) or Node.js, then update yt-dlp.</td></tr>
+        <tr><td><code>Sign in to confirm you're not a bot</code></td><td>Use cookies from a browser where you are signed in to YouTube. See <a href="#cookies">Cookies</a>.</td></tr>
+        <tr><td><code>Could not read cookies from Chrome</code> (or Edge)</td><td>Chromium browsers lock and encrypt their cookies. Export a <code>cookies.txt</code> file instead, or use Firefox.</td></tr>
         <tr><td><code>YouTube keeps refusing the stream (HTTP 403)</code></td><td>Use fewer connections (<code>-c 4</code>), wait a little and try again.</td></tr>
-        <tr><td>Private, age-restricted or members-only video</td><td>Not supported. These need a signed-in account.</td></tr>
+        <tr><td>Private, age-restricted or members-only video</td><td>These need a signed-in account. They may work with <a href="#cookies">cookies</a> from an account that can watch them.</td></tr>
         <tr><td>Playlist link</td><td>Only single videos are supported. A link with <code>&amp;list=</code> downloads just that video.</td></tr>
         <tr><td>Web UI doesn't open</td><td>Open <code>http://localhost:8765</code> yourself. The console shows the port being used.</td></tr>
         <tr><td>Slow download</td><td>Try 16 connections. Your own internet speed is the upper limit.</td></tr>
