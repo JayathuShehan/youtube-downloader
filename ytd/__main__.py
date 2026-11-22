@@ -16,7 +16,8 @@ def build_parser():
         prog="ytd",
         description=f"{APP_NAME} {__version__} - fast multi-connection YouTube downloader",
         allow_abbrev=False,
-        epilog="Examples:\n  ytd -url\n  ytd -url https://youtu.be/xxxx -o D:\\Videos\n  ytd -ui",
+        epilog="Examples:\n  ytd -url\n  ytd -url https://youtu.be/xxxx -o D:\\Videos\n  ytd -ui\n"
+               "  ytd -url --cookies-from-browser firefox",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     mode = p.add_mutually_exclusive_group()
@@ -26,6 +27,11 @@ def build_parser():
     p.add_argument("-o", "--output", metavar="FOLDER", help="download folder")
     p.add_argument("-c", "--connections", type=int, default=8, metavar="N",
                    help="connections per stream, 1-32 (default 8)")
+    ck = p.add_mutually_exclusive_group()
+    ck.add_argument("--cookies-from-browser", metavar="BROWSER[:PROFILE]",
+                    help="use YouTube cookies from a browser you are signed in to "
+                         "(firefox, chrome, edge, brave, opera, vivaldi). Fixes 'confirm you're not a bot'")
+    ck.add_argument("--cookies", metavar="FILE", help="use cookies from a Netscape cookies.txt file")
     p.add_argument("--port", type=int, default=8765, help="port for the web UI (default 8765)")
     p.add_argument("--no-browser", action="store_true", help="start the UI server without opening a browser")
     p.add_argument("-v", "--version", action="version", version=f"{APP_NAME} {__version__}")
@@ -35,12 +41,18 @@ def build_parser():
 def main(argv=None):
     args = build_parser().parse_args(argv)
     conns = max(1, min(32, args.connections))
+    from ytd.extractor import ExtractError, parse_cookies
+    try:
+        cookies = parse_cookies({"browser": args.cookies_from_browser, "file": args.cookies})
+    except ExtractError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
     try:
         if args.url is not None:
             from ytd import cli
-            return cli.run(args.url or None, args.output, conns)
+            return cli.run(args.url or None, args.output, conns, cookies)
         from ytd import server
-        return server.run(args.port, not args.no_browser, conns)
+        return server.run(args.port, not args.no_browser, conns, cookies)
     except KeyboardInterrupt:
         return 130
 

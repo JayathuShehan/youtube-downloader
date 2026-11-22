@@ -87,9 +87,11 @@ def _read_key():
     return None
 
 
-def run(url=None, folder=None, connections=8):
+def run(url=None, folder=None, connections=8, cookies=None):
     _enable_ansi()
     print(f"{BOLD}YTDownloader{RESET} {DIM}- fast YouTube downloader{RESET}\n")
+    if cookies:
+        print(f"{DIM}Using cookies from {cookies.get('browser') or cookies.get('file')}{RESET}\n")
 
     while True:
         if not url:
@@ -99,7 +101,7 @@ def run(url=None, folder=None, connections=8):
             return 1
         print(f"{DIM}Getting video info...{RESET}")
         try:
-            info = extractor.fetch_info(url)
+            info = extractor.fetch_info(url, cookies)
             opts = extractor.build_options(info)
             break
         except ExtractError as e:
@@ -129,7 +131,7 @@ def run(url=None, folder=None, connections=8):
         folder = _ask("Save to (Enter = current folder)", os.getcwd())
     print()
 
-    job = Job(url, kind, quality, folder, connections, info=info)
+    job = Job(url, kind, quality, folder, connections, info=info, cookies=cookies)
     job.start()
     lines = 0
     print(f"{BOLD}Title :{RESET} {opts['title']}")
