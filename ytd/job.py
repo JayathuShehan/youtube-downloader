@@ -15,8 +15,9 @@ _ids = itertools.count(1)
 
 
 class Job:
-    def __init__(self, url, kind, quality, folder, connections=8, info=None):
+    def __init__(self, url, kind, quality, folder, connections=8, info=None, cookies=None):
         self.id = str(next(_ids))
+        self.cookies = cookies
         self.url = url
         self.kind = kind
         self.quality = quality
@@ -98,7 +99,7 @@ class Job:
         if self.info is None:
             self.state = "fetching"
             self.stage = "Getting video info"
-            self.info = extractor.fetch_info(self.url)
+            self.info = extractor.fetch_info(self.url, self.cookies)
         if self._stop.is_set():
             return self._paused()
 
@@ -113,7 +114,7 @@ class Job:
             page = self.info.get("webpage_url") or self.url
             for s in streams:
                 part = os.path.join(self.folder, f"{base} [{vid}].f{safe_filename(s['format_id'])}.part")
-                refresher = (lambda fid=s["format_id"]: extractor.refresh_stream_url(page, fid))
+                refresher = (lambda fid=s["format_id"]: extractor.refresh_stream_url(page, fid, self.cookies))
                 dl = SegmentedDownload(s["url"], s["headers"], part, self.connections, refresher)
                 self.downloads.append((s, dl))
 

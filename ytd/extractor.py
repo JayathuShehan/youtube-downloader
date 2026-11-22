@@ -6,6 +6,7 @@ our own multi-connection downloader (segdl.py).
 
 import contextlib
 import io
+import os
 import shutil
 
 import yt_dlp
@@ -37,7 +38,42 @@ def _js_runtimes():
     return found or {"deno": {}}
 
 
-def _ydl_opts():
+BROWSERS = ("firefox", "chrome", "edge", "brave", "opera", "vivaldi", "chromium", "whale")
+
+
+def parse_cookies(spec):
+    """Normalise a cookie setting.
+
+    Accepts None, {"browser": "firefox[:profile]"} or {"file": "cookies.txt"}.
+    Returns None or a dict with exactly one of those keys.
+    """
+    if not spec:
+        return None
+    browser = (spec.get("browser") or "").strip()
+    path = (spec.get("file") or "").strip().strip('"')
+    if browser:
+        name = browser.split(":", 1)[0].lower()
+        if name not in BROWSERS:
+            raise ExtractError(f"Unsupported browser '{name}'. Use one of: {', '.join(BROWSERS)}.")
+        return {"browser": name + browser[len(name):]}
+    if path:
+        path = os.path.abspath(os.path.expanduser(path))
+        if not os.path.isfile(path):
+            raise ExtractError(f"Cookies file not found: {path}")
+        return {"file": path}
+    return None
+
+
+def _cookie_opts(cookies):
+    if not cookies:
+        return {}
+    if cookies.get("file"):
+        return {"cookiefile": cookies["file"]}
+    name, _, profile = cookies["browser"].partition(":")
+    return {"cookiesfrombrowser": (name, profile or None, None, None)}
+
+
+def _ydl_opts(cookies=None):
     return {
         "quiet": True,
         "no_warnings": True,
@@ -45,6 +81,7 @@ def _ydl_opts():
         "skip_download": True,
         "logger": _QuietLogger(),
         "js_runtimes": _js_runtimes(),
+        **_cookie_opts(cookies),
     }
 
 
@@ -60,18 +97,42 @@ def _clean_error(exc):
     return msg
 
 
-def fetch_info(url):
+BOT_CHECK_HINT = (
+    "YouTube wants to confirm you're not a bot. Give YTDownloader the cookies of a browser where you are "
+    "signed in to YouTube: choose them under Cookies in the web UI, or run ytd -url --cookies cookies.txt "
+    "(or --cookies-from-browser firefox).")
+
+
+def _friendly(msg, cookies):
+    low = msg.lower()
+    if "confirm you" in low and "not a bot" in low:
+        if cookies:
+            return ("YouTube still wants to confirm you're not a bot. Make sure you are signed in to YouTube "
+                    "in that browser (or that the cookies file is fresh), then try again.")
+        return BOT_CHECK_HINT
+    if cookies and cookies.get("browser") and ("cookie" in low or "dpapi" in low or "decrypt" in low):
+        name = cookies["browser"].split(":", 1)[0]
+        if name == "firefox":
+            return ("Could not read cookies from Firefox. Make sure Firefox is installed and that you have "
+                    "signed in to YouTube in it.")
+        return (f"Could not read cookies from {name.capitalize()}. Chrome, Edge and other Chromium browsers "
+                "lock and encrypt their cookies, so they often can't be read. Export a cookies.txt file instead "
+                "(for example with the \"Get cookies.txt LOCALLY\" extension) or use Firefox.")
+    return msg
+
+
+def fetch_info(url, cookies=None):
     url = (url or "").strip()
     if not url:
         raise ExtractError("Please enter a link.")
     try:
         # yt-dlp prints some codec warnings straight to stderr, bypassing the logger.
-        with contextlib.redirect_stderr(io.StringIO()), yt_dlp.YoutubeDL(_ydl_opts()) as ydl:
+        with contextlib.redirect_stderr(io.StringIO()), yt_dlp.YoutubeDL(_ydl_opts(cookies)) as ydl:
             info = ydl.extract_info(url, download=False)
     except yt_dlp.utils.DownloadError as e:
-        raise ExtractError(_clean_error(e)) from None
+        raise ExtractError(_friendly(_clean_error(e), cookies)) from None
     except Exception as e:  # noqa: BLE001 - surface anything as a friendly error
-        raise ExtractError(str(e)) from None
+        raise ExtractError(_friendly(str(e), cookies)) from None
     if info.get("_type") == "playlist":
         entries = [e for e in (info.get("entries") or []) if e]
         if not entries:
@@ -284,9 +345,9 @@ def select(info, kind, quality):
     raise ExtractError(f"Unknown type '{kind}'.")
 
 
-def refresh_stream_url(webpage_url, format_id):
+def refresh_stream_url(webpage_url, format_id, cookies=None):
     """Stream URLs expire after a few hours. Get a fresh one for the same format."""
-    info = fetch_info(webpage_url)
+    info = fetch_info(webpage_url, cookies)
     for f in info["formats"]:
         if f.get("format_id") == format_id and f.get("url"):
             return f["url"], dict(f.get("http_headers") or {})
